@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Token;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -74,10 +75,17 @@ class UserController extends Controller
                 'mobile' => 'required|unique:users,mobile',
             ]);
 
-            User::create([
+            $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'mobile' => $request->mobile,
+            ]);
+
+            $token = User::where('email', $request->email)->first()->createToken('auth')->plainTextToken;
+
+            Token::create([
+                'user_id' => $user->id,
+                'token' => $token
             ]);
 
             return response()->json(["message" => "User Created Successfully"], 200);
