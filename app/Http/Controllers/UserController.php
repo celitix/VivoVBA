@@ -150,7 +150,7 @@ class UserController extends Controller
                 'mobile' => 'required|exists:users,mobile',
             ]);
 
-            $otp = rand(1000, 9999);
+            $otp = rand(10000, 99999);
 
             if (env("APP_ENV") == "local") {
                 $otp = 12345;
