@@ -6,6 +6,7 @@ use App\Models\Otp;
 use App\Models\Token;
 use App\Models\User;
 use Carbon\Carbon;
+use Http;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -162,6 +163,12 @@ class UserController extends Controller
 
             $otp = Otp::create($data);
 
+            $res = $this->sendOtpToMbno($data);
+
+            if (!$res) {
+                return response()->json(["message" => "OTP Not Sent. Please Try Again", "status" => false], 500);
+            }
+
             return response()->json(["message" => "OTP Sent Successfully", "status" => true, "otpId" => $otp->id], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
@@ -212,4 +219,32 @@ class UserController extends Controller
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
+
+    // private function sendOtpToMbno($data)
+    // {
+    //     $url = `https://www.proactivesms.in/sendsms.jsp?user=vivosms&password=ebf73aaad3XX&senderid=YNGJYA&mobiles={$data['mobile']}&sms=Dear User, Your One Time Password is {$data['otp']}. By Yingjia Communication Pvt Ltd&tempid=1207175713278649924`;
+    //     Http::get($url);
+
+    //     if (Http::fail()) {
+    //         return false;
+    //     }
+
+    //     return true;
+    // }
+
+    private function sendOtpToMbno($data)
+    {
+        $message = urlencode("Dear User, Your One Time Password is {$data['otp']}. By Yingjia Communication Pvt Ltd");
+
+        $url = "https://www.proactivesms.in/sendsms.jsp?user=vivosms&password=ebf73aaad3XX&senderid=YNGJYA&mobiles={$data['mobile']}&sms={$message}&tempid=1207175713278649924";
+
+        $response = Http::get($url);
+
+        if ($response->failed()) {
+            return false;
+        }
+
+        return true;
+    }
+
 }
