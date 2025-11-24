@@ -97,9 +97,14 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function getUserToken(string $id)
     {
-        //
+        try {
+            $token = Token::where('user_id', $id)->first();
+            return response()->json(["token" => $token->token, "message" => "Token Found Successfully"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 
     /**
