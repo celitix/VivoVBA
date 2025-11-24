@@ -10,13 +10,36 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function adminLogin(Request $request)
     {
+        $request->validate([
+            'mobile' => 'required|exists:users,mobile',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('mobile', $request->mobile)->first();
+
+        if (!$user->isLogin) {
+            return response()->json([
+                'message' => 'Invalid User',
+            ], 401);
+        }
+
+        if (!password_verify($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Invalid Password',
+            ], 401);
+        }
+
+        $token = $user->createToken('auth', ['admin'])->plainTextToken;
+
+        return response()->json(["token" => $token, "message" => "Login Successfully"], 200);
     }
 
-    public function store(Request $request)
+
+  public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
             'mobile' => 'required|unique:users,mobile',
@@ -26,6 +49,8 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'mobile' => $request->mobile,
+            // "isLogin" => true,
+            // "password" => $request->password
         ]);
 
         return response()->json($user);
