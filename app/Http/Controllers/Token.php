@@ -44,7 +44,7 @@ class Token extends Controller
 
             $token = \App\Models\Token::where("token", $request->token)->first();
             if (!$token) {
-                return response()->json(["message" => "Invalid Token"], 401);
+                return response()->json(["message" => "Invalid Token", "status" => false], 401);
             }
 
             TokenResponse::create([
@@ -57,9 +57,9 @@ class Token extends Controller
                 'type' => $request->type
             ]);
 
-            return response()->json(["message" => "Token Response Created Successfully"], 200);
+            return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
     /**

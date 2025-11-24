@@ -35,9 +35,9 @@ class UserController extends Controller
 
             $token = $user->createToken('auth', ['admin'])->plainTextToken;
 
-            return response()->json(["token" => $token, "message" => "Login Successfully"], 200);
+            return response()->json(["token" => $token, "message" => "Login Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
@@ -60,9 +60,9 @@ class UserController extends Controller
                 "password" => $request->password
             ]);
 
-            return response()->json(["message" => "User Created Successfully"], 200);
+            return response()->json(["message" => "User Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
@@ -88,9 +88,9 @@ class UserController extends Controller
                 'token' => $token
             ]);
 
-            return response()->json(["message" => "User Created Successfully"], 200);
+            return response()->json(["message" => "User Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
@@ -101,9 +101,9 @@ class UserController extends Controller
     {
         try {
             $token = Token::where('user_id', $id)->first();
-            return response()->json(["token" => $token->token, "message" => "Token Found Successfully"], 200);
+            return response()->json(["token" => $token->token, "message" => "Token Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
@@ -115,9 +115,9 @@ class UserController extends Controller
         try {
             $userId = $request->user()->id;
             $user = User::where("id", "!=", $userId)->get();
-            return response()->json(["users" => $user, "message" => "Users Found Successfully"], 200);
+            return response()->json(["users" => $user, "message" => "Users Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
@@ -134,9 +134,9 @@ class UserController extends Controller
                 return response()->json(["message" => "User Deleted Successfully"], 200);
             }
 
-            return response()->json(["message" => "User Not Found"], 404);
+            return response()->json(["message" => "User Not Found", "status" => true], 404);
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage()], 500);
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
 
     }
