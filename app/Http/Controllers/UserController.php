@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Otp;
 use App\Models\Token;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -148,7 +149,7 @@ class UserController extends Controller
                 'mobile' => 'required|exists:users,mobile',
             ]);
 
-            $otp = rand(100000, 999999);
+            $otp = rand(1000, 9999);
 
             if (env("APP_ENV") == "local") {
                 $otp = 12345;
@@ -170,11 +171,43 @@ class UserController extends Controller
     public function verifyOtp(Request $request)
     {
         try {
+            $now = Carbon::now();
             $request->validate([
-                'mobile' => 'required|exists:users,mobile',
                 'otp' => 'required|min:4',
+                'otpId' => 'required|exists:otps,id',
+                "mobile" => "required|exists:users,mobile"
             ]);
-            return response()->json(["message" => "OTP Sent Successfully", "status" => true], 200);
+
+            $otp = Otp::find($request->otpId);
+
+            if ($otp->mobile != $request->mobile) {
+                return response()->json(["message" => "Invalid OTP", "status" => false], 500);
+            }
+            if (!$otp) {
+                return response()->json(["message" => "Invalid OTP", "status" => false], 500);
+            }
+
+            if (!password_verify($request->otp, $otp->otp)) {
+                return response()->json(["message" => "Invalid OTP", "status" => false], 500);
+            }
+
+            if ($otp->type != "generated") {
+                return response()->json(["message" => "Invalid OTP", "status" => false], 500);
+            }
+
+            $minute10 = $now->copy()->subMinutes(10);
+
+            if ($otp->created_at < $minute10) {
+                $otp->update([
+                    "type" => "expired"
+                ]);
+                return response()->json(["message" => "OTP Expired", "status" => false], 500);
+            }
+
+            $otp->update([
+                "type" => "verified"
+            ]);
+            return response()->json(["message" => "OTP Verified Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
