@@ -49,12 +49,12 @@ class Token extends Controller
 
             TokenResponse::create([
                 'token_id' => $token->id,
-                'consumer_name' => $request->consumer_name,
-                'contact_number' => $request->contact_number,
-                'email' => $request->email,
-                'model' => $request->model,
-                'query' => $request->query,
-                'type' => $request->type
+                'consumer_name' => $request->get("consumer_name"),
+                'contact_number' => $request->get("contact_number"),
+                'email' => $request->get("email"),
+                'model' => $request->get("model"),
+                'query' => $request->get("query"),
+                'type' => $request->get("type"),
             ]);
 
             return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
