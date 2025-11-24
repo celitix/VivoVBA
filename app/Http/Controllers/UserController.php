@@ -56,7 +56,7 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'mobile' => $request->mobile,
-                "isLogin" => true,
+                "isLogin" => 1,
                 "password" => $request->password
             ]);
 
@@ -110,9 +110,15 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function allUsers(Request $request)
     {
-        //
+        try {
+            $userId = $request->user()->id;
+            $user = User::where("id", "!=", $userId)->get();
+            return response()->json(["users" => $user, "message" => "Users Found Successfully"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 
     /**
