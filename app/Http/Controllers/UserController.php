@@ -131,10 +131,10 @@ class UserController extends Controller
 
             if ($isUserExist) {
                 $isUserExist->delete();
-                return response()->json(["message" => "User Deleted Successfully"], 200);
+                return response()->json(["message" => "User Deleted Successfully", "status" => true], 200);
             }
 
-            return response()->json(["message" => "User Not Found", "status" => true], 404);
+            return response()->json(["message" => "User Not Found", "status" => false], 404);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }

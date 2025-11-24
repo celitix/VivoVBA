@@ -18,7 +18,9 @@ return new class extends Migration {
     {
         Schema::create('token_responses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("token_id")->constrained();
+            $table->foreignId("token_id")->constrained()->onDelete(
+                'cascade'
+            );
             $table->string("consumer_name");
             $table->string("contact_number");
             $table->string("email");
