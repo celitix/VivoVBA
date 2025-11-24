@@ -12,66 +12,78 @@ class UserController extends Controller
      */
     public function adminLogin(Request $request)
     {
-        $request->validate([
-            'mobile' => 'required|exists:users,mobile',
-            'password' => 'required',
-        ]);
+        try {
+            $request->validate([
+                'mobile' => 'required|exists:users,mobile',
+                'password' => 'required',
+            ]);
 
-        $user = User::where('mobile', $request->mobile)->first();
+            $user = User::where('mobile', $request->mobile)->first();
 
-        if (!$user->isLogin) {
-            return response()->json([
-                'message' => 'Invalid User',
-            ], 401);
+            if (!$user->isLogin) {
+                return response()->json([
+                    'message' => 'Invalid User',
+                ], 401);
+            }
+
+            if (!password_verify($request->password, $user->password)) {
+                return response()->json([
+                    'message' => 'Invalid Password',
+                ], 401);
+            }
+
+            $token = $user->createToken('auth', ['admin'])->plainTextToken;
+
+            return response()->json(["token" => $token, "message" => "Login Successfully"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
         }
-
-        if (!password_verify($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Invalid Password',
-            ], 401);
-        }
-
-        $token = $user->createToken('auth', ['admin'])->plainTextToken;
-
-        return response()->json(["token" => $token, "message" => "Login Successfully"], 200);
     }
 
 
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'mobile' => 'required|unique:users,mobile',
-            'password' => 'required|min:8',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'mobile' => 'required|unique:users,mobile',
+                'password' => 'required|min:8',
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'mobile' => $request->mobile,
-            "isLogin" => true,
-            "password" => $request->password
-        ]);
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+                "isLogin" => true,
+                "password" => $request->password
+            ]);
 
-        return response()->json($user);
+            return response()->json(["message" => "User Created Successfully"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 
     public function createUser(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'mobile' => 'required|unique:users,mobile',
-        ]);
+        try {
+            $request->validate([
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email',
+                'mobile' => 'required|unique:users,mobile',
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'mobile' => $request->mobile,
-        ]);
+            User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'mobile' => $request->mobile,
+            ]);
 
-        return response()->json($user);
+            return response()->json(["message" => "User Created Successfully"], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -95,6 +107,18 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $isUserExist = User::find($id);
+
+            if ($isUserExist) {
+                $isUserExist->delete();
+                return response()->json(["message" => "User Deleted Successfully"], 200);
+            }
+
+            return response()->json(["message" => "User Not Found"], 404);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
+
     }
 }
