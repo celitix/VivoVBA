@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NotifyUser;
 use App\Models\Otp;
 use App\Models\Token;
 use App\Models\User;
 use Carbon\Carbon;
 use Http;
 use Illuminate\Http\Request;
+use Mail;
 
 class UserController extends Controller
 {
@@ -245,6 +247,15 @@ class UserController extends Controller
         }
 
         return true;
+    }
+
+    public function test(){
+        try{
+            Mail::to("arihantj916@gmail.com")->send(new NotifyUser(["name" => "Arihant", "email" => "arihantj916@gmail.com", "mobile" => "1234567890"]));
+        }
+        catch(\Exception $e){
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+        }
     }
 
 }
