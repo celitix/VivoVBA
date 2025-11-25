@@ -66,7 +66,7 @@
         </div>
 
     <div class="content">
-        <p><span class="label">Token:</span> {{ $data["token"] }}</p>
+        <p><span class="label">Token:</span> {{ $name }}</p>
         <p><span class="label">Consumer Name:</span> {{ $data["consumer_name"] }}</p>
         <p><span class="label">Contact Number:</span> {{ $data["contact_number"] }}</p>
         <p><span class="label">Email:</span> {{ $data["email"] }}</p>

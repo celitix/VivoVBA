@@ -15,12 +15,14 @@ class NotifyUser extends Mailable
     use Queueable, SerializesModels;
 
     public $data;
+    public $name;
     /**
      * Create a new message instance.
      */
-    public function __construct($data)
+    public function __construct($data, $name)
     {
         $this->data = $data;
+        $this->name = $name;
     }
 
     /**
@@ -45,7 +47,8 @@ class NotifyUser extends Mailable
         return new Content(
             view: 'notifyUser',
             with: [
-                'data' => $this->data
+                'data' => $this->data,
+                'name' => $this->name
             ]
         );
     }

@@ -15,4 +15,9 @@ class TokenResponse extends Model
         'query',
         'type',
     ];
+
+    public function token()
+    {
+        return $this->belongsTo(Token::class);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\NotifyUser;
 use App\Models\TokenResponse;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailables\Address;
 use Mail;
 
 class Token extends Controller
@@ -49,7 +50,7 @@ class Token extends Controller
                 return response()->json(["message" => "Invalid Token", "status" => false], 401);
             }
 
-            TokenResponse::create([
+            $res = TokenResponse::create([
                 'token_id' => $token->id,
                 'consumer_name' => $request->get("consumer_name"),
                 'contact_number' => $request->get("contact_number"),
@@ -59,7 +60,16 @@ class Token extends Controller
                 'type' => $request->get("type"),
             ]);
 
-            $this->test($request->all());
+            $res->load([
+                'token',
+                'token.user'
+            ]);
+
+            $email = $res->token->user->email;
+            $name = $res->token->user->name;
+
+
+            $this->sendEmail($request->all(), $name, $email);
 
             return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
@@ -90,10 +100,10 @@ class Token extends Controller
         //
     }
 
-    public function test(array $data)
+    public function sendEmail(array $data, string $name,string $email)
     {
         try {
-            Mail::to("arihantj916@gmail.com")->send(new NotifyUser($data));
+            Mail::to(new Address("$email"))->send(new NotifyUser($data, $name));
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
