@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\NotifyUser;
 use App\Models\TokenResponse;
 use Illuminate\Http\Request;
+use Mail;
 
 class Token extends Controller
 {
@@ -57,6 +59,8 @@ class Token extends Controller
                 'type' => $request->get("type"),
             ]);
 
+            $this->test($request->all());
+
             return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
@@ -84,5 +88,14 @@ class Token extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function test(array $data)
+    {
+        try {
+            Mail::to("arihantj916@gmail.com")->send(new NotifyUser($data));
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+        }
     }
 }
