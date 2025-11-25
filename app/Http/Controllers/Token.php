@@ -105,8 +105,8 @@ class Token extends Controller
     {
         try {
             $adminUser = User::where("isLogin", 1)->get()->first();
-            Mail::to(new Address($email))->send(new NotifyUser($data, $name));
-            Mail::to(new Address($adminUser->email))->send(new NotifyUser($data, $name));
+            Mail::to(new Address($email))->queue(new NotifyUser($data, $name));
+            Mail::to(new Address($adminUser->email))->queue(new NotifyUser($data, $name));
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
