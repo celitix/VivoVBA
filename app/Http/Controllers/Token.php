@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\NotifyUser;
 use App\Models\TokenResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailables\Address;
 use Mail;
@@ -103,7 +104,9 @@ class Token extends Controller
     public function sendEmail(array $data, string $name,string $email)
     {
         try {
-            Mail::to(new Address("$email"))->send(new NotifyUser($data, $name));
+            $adminUser = User::where("isLogin", 1)->get()->first();
+            Mail::to(new Address($email))->send(new NotifyUser($data, $name));
+            Mail::to(new Address($adminUser->email))->send(new NotifyUser($data, $name));
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }

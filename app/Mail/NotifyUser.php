@@ -31,9 +31,9 @@ class NotifyUser extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            from: new Address('info@proactivedigital.in', 'VIVO'),
+            from: new Address('hr@ycplwb.com', 'Yingjia Communication Pvt Ltd'),
             replyTo: [
-                new Address('info@proactivedigital.in', 'VIVO'),
+                new Address('hr@ycplwb.com', 'Yingjia Communication Pvt Ltd'),
             ],
             subject: 'New Lead Generated.',
         );
