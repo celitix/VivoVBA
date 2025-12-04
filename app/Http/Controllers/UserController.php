@@ -38,7 +38,7 @@ class UserController extends Controller
 
             $token = $user->createToken('auth', [$user->role])->plainTextToken;
 
-            return response()->json(["token" => $token, "message" => "Login Successfully", "status" => true], 200);
+            return response()->json(["token" => $token, "message" => "Login Successfully", "status" => true, "role" => $user->role], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
