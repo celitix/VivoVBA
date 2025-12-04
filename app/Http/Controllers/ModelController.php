@@ -10,10 +10,16 @@ class ModelController extends Controller
 {
     public function get()
     {
+        $user = auth()->user();
         try {
-            $data = MobileModel::orderBy("created_at", "desc")->get();
+            $data = MobileModel::query()->where("deleted_at", null)->orderBy("created_at", "desc")->get();
+
+            if (!$user) {
+                $data = $data->select("id", "model");
+            }
             return response()->json(["data" => $data, "message" => "Data Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage()], 500);
         }
     }
     public function create(Request $request)

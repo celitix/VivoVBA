@@ -10,6 +10,7 @@ Route::post("/save", [Token::class, 'store']);
 Route::post("/sendOtp", [UserController::class, 'sendOtp']);
 Route::post("/verifyOtp", [UserController::class, 'verifyOtp']);
 Route::post('/login', [UserController::class, 'adminLogin']);
+Route::get("/model", [ModelController::class, 'get']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -25,7 +26,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //model
     // model/deleted/:id
-    Route::get("/model", [ModelController::class, 'get']);
     Route::post("/model", [ModelController::class, 'create']);
     Route::put("/model", [ModelController::class, 'update']);
     Route::delete("/model/{id}", [ModelController::class, 'delete']);
