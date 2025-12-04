@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Otp;
 use App\Models\Token;
+use App\Models\TokenResponse;
 use App\Models\User;
 use Carbon\Carbon;
 use Http;
@@ -224,6 +225,21 @@ class UserController extends Controller
         }
     }
 
+    public function getUserResponse()
+    {
+        try {
+            $user = auth()->user()->id;
+            $token = Token::where("user_id", $user)->first();
+
+            $data = TokenResponse::where("token_id", $token->id)->get();
+
+            return response()->json(["data" => $data, "message" => "Data Found Successfully", "status" => true], 200);
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+        }
+    }
+
+
     // private function sendOtpToMbno($data)
     // {
     //     $url = `https://www.proactivesms.in/sendsms.jsp?user=vivosms&password=ebf73aaad3XX&senderid=YNGJYA&mobiles={$data['mobile']}&sms=Dear User, Your One Time Password is {$data['otp']}. By Yingjia Communication Pvt Ltd&tempid=1207175713278649924`;
@@ -250,5 +266,4 @@ class UserController extends Controller
 
         return true;
     }
-
 }
