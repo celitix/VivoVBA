@@ -20,8 +20,14 @@ class ModelController extends Controller
     {
         try {
             $request->validate([
-                'model' => 'required|unique:mobile_models',
+                'model' => 'required',
             ]);
+
+            $isModelExist = MobileModel::where("model", $request->get("model"))->where('deleted_at', null)->first();
+
+            if ($isModelExist) {
+                return response()->json(["message" => "Model Already Exist", "status" => false], 400);
+            }
 
             MobileModel::create([
                 'model' => $request->get("model"),
@@ -39,9 +45,15 @@ class ModelController extends Controller
                 'id' => 'required|exists:mobile_models,id',
                 'model' => [
                     'required',
-                    Rule::unique('mobile_models', 'model')->ignore($request->get("id")),
+
                 ],
             ]);
+
+            $isModelExist = MobileModel::where("model", $request->get("model"))->where('deleted_at', null)->whereNot("id", $request->get("id"))->first();
+
+            if ($isModelExist) {
+                return response()->json(["message" => "Model Already Exist", "status" => false], 400);
+            }
 
             $model = MobileModel::where("id", $request->get("id"))->first();
             $model->model = $request->get("model");
@@ -81,7 +93,7 @@ class ModelController extends Controller
             $model = MobileModel::onlyTrashed()->where("id", $id)->first();
 
             if (!$model) {
-                return response()->json(["message" => "Model Not Found", "status" => false], 404); 
+                return response()->json(["message" => "Model Not Found", "status" => false], 404);
             }
 
             $model->forceDelete();
@@ -96,7 +108,7 @@ class ModelController extends Controller
             $model = MobileModel::onlyTrashed()->where("id", $id)->first();
 
             if (!$model) {
-                return response()->json(["message" => "Model Not Found", "status" => false], 404); 
+                return response()->json(["message" => "Model Not Found", "status" => false], 404);
             }
 
             $model->restore();
