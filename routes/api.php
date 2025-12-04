@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ModelController;
 use App\Http\Controllers\Token;
 use App\Http\Controllers\UserController;
@@ -32,8 +33,12 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::get("/model/deleted", [ModelController::class, 'deletedModel']);
     Route::post("/model/restore/{id}", [ModelController::class, 'restore']);
     Route::delete("/model/deleted/{id}", [ModelController::class, 'hardDelete']);
+
+    Route::get("/lead/{id}", [LeadController::class, 'get']);
 });
 
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
     Route::get("/me", [UserController::class, 'getUserResponse']);
+    Route::get("/lead/{id}", [LeadController::class, 'get']);
+    Route::post("/lead", [LeadController::class, 'create']);
 });
