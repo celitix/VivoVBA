@@ -31,5 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete("/model/{id}", [ModelController::class, 'delete']);
     Route::get("/model/deleted", [ModelController::class, 'deletedModel']);
     Route::post("/model/restore/{id}", [ModelController::class, 'restore']);
-    Route::delete("/model/deleted/:id", [ModelController::class, 'hardDelete']);
+    Route::delete("/model/deleted/{id}", [ModelController::class, 'hardDelete']);
 });
