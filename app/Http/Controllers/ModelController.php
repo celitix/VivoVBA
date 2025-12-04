@@ -39,7 +39,7 @@ class ModelController extends Controller
                 'id' => 'required|exists:mobile_models,id',
                 'model' => [
                     'required',
-                    Rule::unique('mobile_models', 'model')->ignore($request->id),
+                    Rule::unique('mobile_models', 'model')->ignore($request->get("id")),
                 ],
             ]);
 
