@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MobileModel;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ModelController extends Controller
 {
@@ -19,7 +20,7 @@ class ModelController extends Controller
     {
         try {
             $request->validate([
-                'model' => "required:unique:mobile_models",
+                'model' => 'required|unique:mobile_models',
             ]);
 
             MobileModel::create([
@@ -35,8 +36,11 @@ class ModelController extends Controller
     {
         try {
             $request->validate([
-                "id" => "required|exists:mobile_models",
-                'model' => "required:unique:mobile_models",
+                'id' => 'required|exists:mobile_models,id',
+                'model' => [
+                    'required',
+                    Rule::unique('mobile_models', 'model')->ignore($request->id),
+                ],
             ]);
 
             $model = MobileModel::where("id", $request->get("id"))->first();
