@@ -117,7 +117,7 @@ class UserController extends Controller
     {
         try {
             $userId = $request->user()->id;
-            $user = User::where("id", "!=", $userId)->get();
+            $user = User::where("id", "!=", $userId)->where("isLogin", 0)->get();
             return response()->json(["users" => $user, "message" => "Users Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
