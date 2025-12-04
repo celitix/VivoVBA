@@ -23,7 +23,8 @@ class User extends Authenticatable
         'email',
         'mobile',
         "isLogin",
-        "password"
+        "password",
+        "role"
     ];
 
 

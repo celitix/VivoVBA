@@ -14,7 +14,7 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function adminLogin(Request $request)
+    public function login(Request $request)
     {
         try {
             $request->validate([
@@ -22,9 +22,9 @@ class UserController extends Controller
                 'password' => 'required',
             ]);
 
-            $user = User::where('mobile', $request->mobile)->first();
+            $user = User::where('mobile', $request->get('mobile'))->first();
 
-            if (!$user->isLogin) {
+            if (!$user) {
                 return response()->json([
                     'message' => 'Invalid User',
                 ], 401);
@@ -36,7 +36,7 @@ class UserController extends Controller
                 ], 401);
             }
 
-            $token = $user->createToken('auth', ['admin'])->plainTextToken;
+            $token = $user->createToken('auth', [$user->role])->plainTextToken;
 
             return response()->json(["token" => $token, "message" => "Login Successfully", "status" => true], 200);
         } catch (\Exception $e) {
@@ -56,14 +56,15 @@ class UserController extends Controller
             ]);
 
             User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'mobile' => $request->mobile,
+                'name' => $request->get('name'),
+                'email' => $request->get('email'),
+                'mobile' => $request->get('mobile'),
                 "isLogin" => 1,
-                "password" => $request->password
+                "password" => $request->get('password'),
+                "role" => "admin"
             ]);
 
-            return response()->json(["message" => "User Created Successfully", "status" => true], 200);
+            return response()->json(["message" => "Admin Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
@@ -76,15 +77,18 @@ class UserController extends Controller
                 'name' => 'required',
                 'email' => 'required|email|unique:users,email',
                 'mobile' => 'required|unique:users,mobile',
+                'password' => 'required|min:8',
             ]);
 
             $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'mobile' => $request->mobile,
+                'name' => $request->get('name'),
+                'email' => $request->get('email'),
+                'mobile' => $request->get('mobile'),
+                "password" => $request->get('password'),
+                "role" => "user"
             ]);
 
-            $token = User::where('email', $request->email)->first()->createToken('auth')->plainTextToken;
+            $token = $user->createToken('tracking')->plainTextToken;
 
             Token::create([
                 'user_id' => $user->id,
@@ -117,7 +121,7 @@ class UserController extends Controller
     {
         try {
             $userId = $request->user()->id;
-            $user = User::where("id", "!=", $userId)->where("isLogin", 0)->get();
+            $user = User::where("id", "!=", $userId)->where("role", "user")->get();
             return response()->json(["users" => $user, "message" => "Users Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);

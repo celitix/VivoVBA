@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::post("/save", [Token::class, 'store']);
 Route::post("/sendOtp", [UserController::class, 'sendOtp']);
 Route::post("/verifyOtp", [UserController::class, 'verifyOtp']);
-Route::post('/login', [UserController::class, 'adminLogin']);
+Route::post('/login', [UserController::class, 'login']);
 Route::get("/model", [ModelController::class, 'get']);
 
 
