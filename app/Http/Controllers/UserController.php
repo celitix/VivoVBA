@@ -122,7 +122,7 @@ class UserController extends Controller
     {
         try {
             $userId = $request->user()->id;
-            $user = User::where("id", "!=", $userId)->where("role", "user")->get();
+            $user = User::where("id", "!=", $userId)->where("role", "user")->orderBy("created_at", "desc")->get();
             return response()->json(["users" => $user, "message" => "Users Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
@@ -231,7 +231,7 @@ class UserController extends Controller
             $user = auth()->user()->id;
             $token = Token::where("user_id", $user)->first();
 
-            $data = TokenResponse::where("token_id", $token->id)->with('leads')->get()->map(function ($item) {
+            $data = TokenResponse::where("token_id", $token->id)->with('leads')->orderBy("created_at", "desc")->get()->map(function ($item) {
                 $item->isCreated = $item->leads ? true : false;
                 return $item;
             });

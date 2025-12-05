@@ -18,14 +18,15 @@ class TokenController extends Controller
     public function getTokenResponse(string $token)
     {
         try {
-            $token = \App\Models\Token::where("token", $token)->first();
+            $token = Token::where("token", $token)->first();
             if (!$token) {
                 return response()->json(["message" => "Invalid Token"], 401);
             }
 
             $tokenResponse = TokenResponse::where('token_id', $token->id)
-                ->with('leads') // eager load the relation
+                ->with('leads')
                 ->get()
+                ->orderBy("created_at", "desc")
                 ->map(function ($item) {
                     $item->isCreated = $item->leads ? true : false;
                     return $item;
@@ -112,9 +113,13 @@ class TokenController extends Controller
     public function sendEmail(array $data, string $name, string $email)
     {
         try {
-            $adminUser = User::where("isLogin", 1)->get()->first();
+            $adminUser = User::where("role", "admin")->get();
+
+            foreach ($adminUser as $user) {
+                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name));
+            }
             Mail::to(new Address($email))->queue(new NotifyUser($data, $name));
-            Mail::to(new Address($adminUser->email))->queue(new NotifyUser($data, $name));
+
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
