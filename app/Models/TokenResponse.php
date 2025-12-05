@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+// use App\Models\Token;
 
 class TokenResponse extends Model
 {
@@ -14,6 +15,7 @@ class TokenResponse extends Model
         'model',
         'query',
         'type',
+        "converted_at"
     ];
 
     public function leads()
@@ -23,6 +25,7 @@ class TokenResponse extends Model
 
     public function token()
     {
-        return $this->belongsTo(Token::class);
+        return $this->belongsTo(\App\Models\Token::class);
     }
+
 }

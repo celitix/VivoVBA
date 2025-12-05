@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Lead;
 use App\Models\Otp;
 use App\Models\Token;
 use App\Models\TokenResponse;
 use App\Models\User;
 use Carbon\Carbon;
+use DB;
 use Http;
 use Illuminate\Http\Request;
 
@@ -243,17 +245,96 @@ class UserController extends Controller
     }
 
 
-    // private function sendOtpToMbno($data)
-    // {
-    //     $url = `https://www.proactivesms.in/sendsms.jsp?user=vivosms&password=ebf73aaad3XX&senderid=YNGJYA&mobiles={$data['mobile']}&sms=Dear User, Your One Time Password is {$data['otp']}. By Yingjia Communication Pvt Ltd&tempid=1207175713278649924`;
-    //     Http::get($url);
+    public function report()
+    {
+        try {
+            $authUser = auth()->user();
+            $users = User::where("id", $authUser->id)->get();
 
-    //     if (Http::fail()) {
-    //         return false;
-    //     }
+            if ($authUser->role == "admin") {
+                $user = User::with([
+                    'token.responses.leads'
+                ])->get();
+            }
 
-    //     return true;
-    // }
+            $result = [];
+
+            foreach ($users as $user) {
+
+                $responses = $user->tokenResponses;
+                $leads = $user->leads;
+
+
+                $totalResponses = $responses->count();
+                $totalLeads = $leads->count();
+                $totalConversions = $leads->where('is_converted', true)->count();
+
+
+                $responsesPerModel = $responses
+                    ->groupBy('model')
+                    ->map(fn($r) => $r->count())
+                    ->map(fn($count, $model) => [
+                        'model' => $model,
+                        'total_responses' => $count
+                    ])
+                    ->values();
+
+
+                $leadsPerModel = $responses
+                    ->groupBy('model')
+                    ->map(function ($group) {
+                        return $group->flatMap->leads->count();
+                    })
+                    ->map(fn($count, $model) => [
+                        'model' => $model,
+                        'total_leads' => $count
+                    ])
+                    ->values();
+
+                $conversionsPerModel = $responses
+                    ->groupBy('model')
+                    ->map(function ($group) {
+                        return $group->flatMap->leads->where('is_converted', true)->count();
+                    })
+                    ->map(fn($count, $model) => [
+                        'model' => $model,
+                        'total_conversions' => $count
+                    ])
+                    ->values();
+
+
+                $leadsPerResponse = $totalResponses > 0
+                    ? round($totalLeads / $totalResponses, 2)
+                    : 0;
+
+
+                $result[] = [
+                    "user_id" => $user->id,
+                    "user_name" => $user->name,
+                    "total_responses" => $totalResponses,
+                    "total_leads" => $totalLeads,
+                    "total_conversions" => $totalConversions,
+                    "leads_per_response" => $leadsPerResponse,
+                    "responses_per_model" => $responsesPerModel,
+                    "leads_per_model" => $leadsPerModel,
+                    "conversions_per_model" => $conversionsPerModel,
+                ];
+            }
+
+            return response()->json([
+                "message" => "Tracking data loaded successfully",
+                "status" => true,
+                "data" => $result
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
+
 
     private function sendOtpToMbno($data)
     {

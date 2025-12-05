@@ -31,6 +31,10 @@ class LeadController extends Controller
                 return response()->json(["message" => "Lead already exist", "status" => false], 500);
             }
 
+            $isAlreadyExist->update([
+                "converted_at" => now()
+            ]);
+
             if ($request->get("is_converted") && !$request->get("imei")) {
                 return response()->json(["message" => "IMEI is required", "status" => false], 500);
             }

@@ -12,4 +12,9 @@ class Lead extends Model
         'imei',
         'remarks'
     ];
+    public function tokenResponse()
+    {
+        return $this->belongsTo(TokenResponse::class, 'token_responses_id');
+    }
+
 }

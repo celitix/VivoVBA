@@ -21,4 +21,9 @@ class Token extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function responses()
+    {
+        return $this->hasMany(TokenResponse::class);
+    }
+
 }

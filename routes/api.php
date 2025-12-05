@@ -42,6 +42,7 @@ Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
 
 Route::middleware(['auth:sanctum'])->group(function () {
 
+    Route::get("/tracking", [UserController::class, 'report']);
     Route::get("/lead/{id}", [LeadController::class, 'get']);
 
 });
