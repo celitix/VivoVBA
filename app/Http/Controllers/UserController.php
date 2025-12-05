@@ -252,7 +252,7 @@ class UserController extends Controller
             $users = User::where("id", $authUser->id)->get();
 
             if ($authUser->role == "admin") {
-                $user = User::with([
+                $users = $user = User::with([
                     'token.responses.leads'
                 ])->get();
             }
@@ -266,8 +266,8 @@ class UserController extends Controller
 
 
                 $totalResponses = $responses->count();
-                $totalLeads = $leads->count();
-                $totalConversions = $leads->where('is_converted', true)->count();
+                $totalLeads = $responses->flatMap->lead->count();
+                $totalConversions = $responses->flatMap->lead->where('is_converted', true)->count();
 
 
                 $responsesPerModel = $responses
@@ -279,22 +279,18 @@ class UserController extends Controller
                     ])
                     ->values();
 
-
-                $leadsPerModel = $responses
-                    ->groupBy('model')
-                    ->map(function ($group) {
-                        return $group->flatMap->leads->count();
-                    })
-                    ->map(fn($count, $model) => [
+                $leadsPerModel = $responses->groupBy("model")
+                    ->map(fn($group) => $group->flatMap->lead)
+                    ->map(fn($group, $model) => [
                         'model' => $model,
-                        'total_leads' => $count
+                        'total_leads' => $group->count(),
                     ])
                     ->values();
 
                 $conversionsPerModel = $responses
                     ->groupBy('model')
                     ->map(function ($group) {
-                        return $group->flatMap->leads->where('is_converted', true)->count();
+                        return $group->flatMap->lead->where('is_converted', true)->count();
                     })
                     ->map(fn($count, $model) => [
                         'model' => $model,

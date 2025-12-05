@@ -23,6 +23,11 @@ class TokenResponse extends Model
         return $this->hasOne(Lead::class , "token_responses_id");
     }
 
+    public function lead()
+    {
+        return $this->hasMany(Lead::class, "token_responses_id");
+    }
+
     public function token()
     {
         return $this->belongsTo(\App\Models\Token::class);

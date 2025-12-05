@@ -114,16 +114,29 @@ class User extends Authenticatable
         );
     }
 
+    // public function leads()
+    // {
+    //     return $this->hasManyThrough(
+    //         \App\Models\Lead::class,
+    //         \App\Models\TokenResponse::class,
+    //         'token_id',
+    //         'token_responses_id',
+    //         'id',
+    //         'id'
+    //     );
+    // }
+
     public function leads()
     {
         return $this->hasManyThrough(
-            \App\Models\Lead::class,
-            \App\Models\TokenResponse::class,
-            'token_id',
-            'token_responses_id',
-            'id',
-            'id'
+            \App\Models\Lead::class,          // Final model
+            \App\Models\TokenResponse::class, // Intermediate model
+            'token_id',                       // FK on TokenResponse → token.id
+            'token_responses_id',             // FK on Lead → token_responses.id
+            'id',                             // Local key on Token
+            'id'                              // Local key on TokenResponse
         );
     }
+
 }
 
