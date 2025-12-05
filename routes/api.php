@@ -2,12 +2,12 @@
 
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ModelController;
-use App\Http\Controllers\Token;
+use App\Http\Controllers\TokenController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 
-Route::post("/save", [Token::class, 'store']);
+Route::post("/save", [TokenController::class, 'store']);
 Route::post("/sendOtp", [UserController::class, 'sendOtp']);
 Route::post("/verifyOtp", [UserController::class, 'verifyOtp']);
 Route::post('/login', [UserController::class, 'login']);
@@ -23,7 +23,7 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     // Route::get('/allUsers', [UserController::class, 'allUsers']);
 
 
-    Route::get("/response/{token}", [Token::class, 'getTokenResponse']);
+    Route::get("/response/{token}", [TokenController::class, 'getTokenResponse']);
 
     //model
     // model/deleted/:id

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Mail\NotifyUser;
+use App\Models\Token;
 use App\Models\TokenResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailables\Address;
 use Mail;
 
-class Token extends Controller
+class TokenController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -44,16 +45,16 @@ class Token extends Controller
     {
         try {
             $request->validate([
-                'token' => "required",
+                'token' => "required|exists:tokens,token",
                 'consumer_name' => "required",
                 'contact_number' => "required|numeric",
                 'email' => "required|email",
-                'model' => "required",
+                'model' => "required|exists:mobile_models,model",
                 'query' => "required",
                 'type' => "required",
             ]);
 
-            $token = \App\Models\Token::where("token", $request->token)->first();
+            $token = Token::where("token", $request->token)->first();
             if (!$token) {
                 return response()->json(["message" => "Invalid Token", "status" => false], 401);
             }
