@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('leads', function (Blueprint $table) {
             $table->id();
-            $table->foreignId("token_id")->constrained()->onDelete(
+            $table->foreignId("token_responses_id")->constrained()->onDelete(
                 'cascade'
             );
             $table->boolean("is_converted")->default(false);
@@ -21,6 +21,10 @@ return new class extends Migration {
             $table->timestamps();
         });
     }
+    //   $table->foreign('response_id')
+    //             ->references('id')
+    //             ->on('token_responses')
+    //             ->onDelete('cascade')
 
     /**
      * Reverse the migrations.

@@ -231,7 +231,10 @@ class UserController extends Controller
             $user = auth()->user()->id;
             $token = Token::where("user_id", $user)->first();
 
-            $data = TokenResponse::where("token_id", $token->id)->get();
+            $data = TokenResponse::where("token_id", $token->id)->with('leads')->get()->map(function ($item) {
+                $item->isCreated = $item->leads ? true : false;
+                return $item;
+            });
 
             return response()->json(["data" => $data, "message" => "Data Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {

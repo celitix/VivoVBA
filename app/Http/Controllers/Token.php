@@ -22,7 +22,14 @@ class Token extends Controller
                 return response()->json(["message" => "Invalid Token"], 401);
             }
 
-            $tokenResponse = TokenResponse::where('token_id', $token->id)->get();
+            $tokenResponse = TokenResponse::where('token_id', $token->id)
+                ->with('leads') // eager load the relation
+                ->get()
+                ->map(function ($item) {
+                    $item->isCreated = $item->leads ? true : false;
+                    return $item;
+                });
+
 
             return response()->json(["tokenResponse" => $tokenResponse, "message" => "Token Response Found Successfully"], 200);
         } catch (\Exception $e) {
@@ -101,7 +108,7 @@ class Token extends Controller
         //
     }
 
-    public function sendEmail(array $data, string $name,string $email)
+    public function sendEmail(array $data, string $name, string $email)
     {
         try {
             $adminUser = User::where("isLogin", 1)->get()->first();
