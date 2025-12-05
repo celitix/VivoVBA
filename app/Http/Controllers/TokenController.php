@@ -25,8 +25,8 @@ class TokenController extends Controller
 
             $tokenResponse = TokenResponse::where('token_id', $token->id)
                 ->with('leads')
-                ->get()
                 ->orderBy("created_at", "desc")
+                ->get()
                 ->map(function ($item) {
                     $item->isCreated = $item->leads ? true : false;
                     return $item;
