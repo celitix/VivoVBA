@@ -18,22 +18,49 @@ class TokenController extends Controller
     public function getTokenResponse(string $token)
     {
         try {
+
             $token = Token::where("token", $token)->first();
             if (!$token) {
                 return response()->json(["message" => "Invalid Token"], 401);
             }
 
-            $tokenResponse = TokenResponse::where('token_id', $token->id)
+            // $tokenResponse = TokenResponse::query()->where('token_id', $token->id)
+            //     ->with('leads')
+            //     ->orderBy("created_at", "desc")
+            //     ->paginate(10)
+            //     // ->get()
+            //     ->through(function ($item) {
+            //         $item->isCreated = $item->leads ? true : false;
+            //         return $item;
+            //     });
+
+            $paginator = TokenResponse::query()
+                ->where('token_id', $token->id)
                 ->with('leads')
                 ->orderBy("created_at", "desc")
-                ->get()
-                ->map(function ($item) {
-                    $item->isCreated = $item->leads ? true : false;
+                ->paginate(10)
+                ->through(function ($item) {
+                    $item->isCreated = (bool) $item->leads;
                     return $item;
                 });
 
+            $data = [
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'from' => $paginator->firstItem(),
+                    'to' => $paginator->lastItem(),
+                    'next_page_url' => $paginator->nextPageUrl(),
+                    'prev_page_url' => $paginator->previousPageUrl(),
+                ]
+            ];
 
-            return response()->json(["tokenResponse" => $tokenResponse, "message" => "Token Response Found Successfully"], 200);
+
+
+            return response()->json(["tokenResponse" => $data["data"], "meta"=> $data["meta"], "message" => "Token Response Found Successfully"], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage()], 500);
         }
@@ -50,7 +77,7 @@ class TokenController extends Controller
                 'consumer_name' => "required",
                 'contact_number' => "required|numeric",
                 'email' => "required|email",
-                'model' => "required|exists:mobile_models,model",
+                // 'model' => "required|exists:mobile_models,model",
                 'query' => "required",
                 'type' => "required",
             ]);
