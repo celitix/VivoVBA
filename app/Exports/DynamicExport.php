@@ -20,16 +20,16 @@ class DynamicExport implements FromArray
         $excelData = [];
 
         $excelData[] = [
-            'ID',
+            // 'ID',
             'Token',
             'Consumer Name',
             'Contact Number',
             'Email',
             'Model',
             'Source',
-            'Type',
+            'User Query',
             'Created At',
-            'Lead ID',
+            // 'Lead ID',
             'Converted',
             'IMEI',
             'Remarks',
@@ -37,19 +37,19 @@ class DynamicExport implements FromArray
 
         foreach ($this->data as $item) {
             $excelData[] = [
-                $item->id,
+                // $item->id,
                 $item->token->token,
                 $item->consumer_name,
                 $item->contact_number,
                 $item->email,
-                $item->model,
+                $item->model?->model,
                 $item->query,
                 $item->type,
                 $item->created_at,
 
                 // safe relation access
-                $item->leads?->id,
-                $item->leads?->is_converted,
+                // $item->leads?->id,
+                $item->leads?->is_converted == 1 ? 'Yes' : 'No',
                 $item->leads?->imei,
                 $item->leads?->remarks,
             ];

@@ -39,6 +39,7 @@ class TokenController extends Controller
             $paginator = TokenResponse::query()
                 ->where('token_id', $token->id)
                 ->with('leads')
+                ->with('model')
                 ->orderBy("created_at", "desc")
                 ->paginate(10)
                 ->through(function ($item) {
