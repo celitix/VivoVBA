@@ -233,12 +233,26 @@ class UserController extends Controller
             $user = auth()->user()->id;
             $token = Token::where("user_id", $user)->first();
 
-            $data = TokenResponse::where("token_id", $token->id)->with('leads')->orderBy("created_at", "desc")->get()->map(function ($item) {
-                $item->isCreated = $item->leads ? true : false;
+            $paginator = TokenResponse::where("token_id", $token->id)->with('leads')->orderBy("created_at", "desc")->paginate(10)->through(function ($item) {
+                $item->isCreated = (bool) $item->leads;
                 return $item;
             });
 
-            return response()->json(["data" => $data, "message" => "Data Found Successfully", "status" => true], 200);
+            $data = [
+                'data' => $paginator->items(),
+                'meta' => [
+                    'current_page' => $paginator->currentPage(),
+                    'last_page' => $paginator->lastPage(),
+                    'per_page' => $paginator->perPage(),
+                    'total' => $paginator->total(),
+                    'from' => $paginator->firstItem(),
+                    'to' => $paginator->lastItem(),
+                    'next_page_url' => $paginator->nextPageUrl(),
+                    'prev_page_url' => $paginator->previousPageUrl(),
+                ]
+            ];
+
+            return response()->json(["data" => $data["data"], "meta" => $data["meta"], "message" => "Data Found Successfully", "status" => true], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
@@ -298,6 +312,15 @@ class UserController extends Controller
                     ])
                     ->values();
 
+                $responsesPerSource = $responses
+                    ->groupBy('query')
+                    ->map(fn($r) => $r->count())
+                    ->map(fn($count, $source) => [
+                        'source' => $source,
+                        'total_responses' => $count
+                    ])
+                    ->values();
+
 
                 $leadsPerResponse = $totalResponses > 0
                     ? round($totalLeads / $totalResponses, 2)
@@ -314,6 +337,7 @@ class UserController extends Controller
                     "responses_per_model" => $responsesPerModel,
                     "leads_per_model" => $leadsPerModel,
                     "conversions_per_model" => $conversionsPerModel,
+                    "responsesPerSource" => $responsesPerSource
                 ];
             }
 
