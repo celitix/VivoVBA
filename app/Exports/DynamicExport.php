@@ -21,12 +21,12 @@ class DynamicExport implements FromArray
 
         $excelData[] = [
             'ID',
-            'Token ID',
+            'Token',
             'Consumer Name',
             'Contact Number',
             'Email',
             'Model',
-            'Query',
+            'Source',
             'Type',
             'Created At',
             'Lead ID',
@@ -38,7 +38,7 @@ class DynamicExport implements FromArray
         foreach ($this->data as $item) {
             $excelData[] = [
                 $item->id,
-                $item->token_id,
+                $item->token->token,
                 $item->consumer_name,
                 $item->contact_number,
                 $item->email,
