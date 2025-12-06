@@ -287,7 +287,7 @@ class UserController extends Controller
 
 
                 $responsesPerModel = $responses
-                    ->groupBy(fn($r) => $r->model->model)
+                    ->groupBy(fn($r) => $r->model?->model)
                     ->map(fn($r) => $r->count())
                     ->map(fn($count, $model) => [
                         'model' => $model,
@@ -295,7 +295,7 @@ class UserController extends Controller
                     ])
                     ->values();
 
-                $leadsPerModel = $responses->groupBy(fn($r) => $r->model->model)
+                $leadsPerModel = $responses->groupBy(fn($r) => $r->model?->model)
                     ->map(fn($group) => $group->flatMap->lead)
                     ->map(fn($group, $model) => [
                         'model' => $model,
@@ -304,7 +304,7 @@ class UserController extends Controller
                     ->values();
 
                 $conversionsPerModel = $responses
-                    ->groupBy(fn($r) => $r->model->model)
+                    ->groupBy(fn($r) => $r->model?->model)
                     ->map(function ($group) {
                         return $group->flatMap->lead->where('is_converted', true)->count();
                     })
