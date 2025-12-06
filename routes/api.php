@@ -44,5 +44,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get("/tracking", [UserController::class, 'report']);
     Route::get("/lead/{id}", [LeadController::class, 'get']);
+    Route::get('/export/{token}', [App\Http\Controllers\TokenController::class, 'export']);
 
 });
