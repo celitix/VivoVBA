@@ -234,7 +234,7 @@ class UserController extends Controller
             $user = auth()->user()->id;
             $token = Token::where("user_id", $user)->first();
 
-            $paginator = TokenResponse::where("token_id", $token->id)->with('leads')->orderBy("created_at", "desc")->paginate(10)->through(function ($item) {
+            $paginator = TokenResponse::where("token_id", $token->id)->with('leads')->with("model")->orderBy("created_at", "desc")->paginate(10)->through(function ($item) {
                 $item->isCreated = (bool) $item->leads;
                 return $item;
             });
