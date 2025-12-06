@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lead;
+use App\Models\MobileModel;
 use App\Models\Otp;
 use App\Models\Token;
 use App\Models\TokenResponse;
@@ -266,8 +267,9 @@ class UserController extends Controller
             $users = User::where("id", $authUser->id)->get();
 
             if ($authUser->role == "admin") {
-                $users = $user = User::with([
-                    'token.responses.leads'
+                $users = User::with([
+                    'token.responses.leads',
+                    'token.responses.model'
                 ])->get();
             }
 
@@ -285,7 +287,7 @@ class UserController extends Controller
 
 
                 $responsesPerModel = $responses
-                    ->groupBy('model')
+                    ->groupBy(fn($r) => $r->model->model)
                     ->map(fn($r) => $r->count())
                     ->map(fn($count, $model) => [
                         'model' => $model,
@@ -293,7 +295,7 @@ class UserController extends Controller
                     ])
                     ->values();
 
-                $leadsPerModel = $responses->groupBy("model")
+                $leadsPerModel = $responses->groupBy(fn($r) => $r->model->model)
                     ->map(fn($group) => $group->flatMap->lead)
                     ->map(fn($group, $model) => [
                         'model' => $model,
@@ -302,7 +304,7 @@ class UserController extends Controller
                     ->values();
 
                 $conversionsPerModel = $responses
-                    ->groupBy('model')
+                    ->groupBy(fn($r) => $r->model->model)
                     ->map(function ($group) {
                         return $group->flatMap->lead->where('is_converted', true)->count();
                     })
@@ -322,6 +324,14 @@ class UserController extends Controller
                     ->values();
 
 
+                $responsePerModel = MobileModel::all()->map(function ($model) use ($responses) {
+                    return [
+                        "model" => $model->model,
+                        "total_responses" => $responses->where("model_id", $model->id)->count(),
+                        "total_leads" => $responses->where("model_id", $model->id)->flatMap->lead->count(),
+                        "total_conversions" => $responses->where("model_id", $model->id)->flatMap->lead->where('is_converted', true)->count(),
+                    ];
+                });
                 $leadsPerResponse = $totalResponses > 0
                     ? round($totalLeads / $totalResponses, 2)
                     : 0;
@@ -337,7 +347,8 @@ class UserController extends Controller
                     "responses_per_model" => $responsesPerModel,
                     "leads_per_model" => $leadsPerModel,
                     "conversions_per_model" => $conversionsPerModel,
-                    "responsesPerSource" => $responsesPerSource
+                    "responsesPerSource" => $responsesPerSource,
+                    "responses" => $responsePerModel
                 ];
             }
 

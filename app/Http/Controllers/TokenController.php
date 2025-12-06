@@ -81,7 +81,7 @@ class TokenController extends Controller
                 'email' => "required|email",
                 // 'model' => "required|exists:mobile_models,model",
                 'query' => "required",
-                'type' => "required",
+                // 'type' => "required",
             ]);
 
             $token = Token::where("token", $request->token)->first();
