@@ -94,6 +94,9 @@ class User extends Authenticatable
         ];
     }
 
+    protected $hidden = ['password', 'isLogin','role'];
+
+
     // -----------------------------------------
     // REQUIRED FIX: This was missing!
     // -----------------------------------------
