@@ -12,7 +12,7 @@ class TokenResponse extends Model
         'consumer_name',
         'contact_number',
         'email',
-        'model',
+        'model_id',
         'query',
         'type',
         "converted_at"
@@ -20,7 +20,7 @@ class TokenResponse extends Model
 
     public function leads()
     {
-        return $this->hasOne(Lead::class , "token_responses_id");
+        return $this->hasOne(Lead::class, "token_responses_id");
     }
 
     public function lead()
@@ -31,6 +31,11 @@ class TokenResponse extends Model
     public function token()
     {
         return $this->belongsTo(\App\Models\Token::class);
+    }
+
+    public function model()
+    {
+        return $this->belongsTo(\App\Models\MobileModel::class, 'model_id');
     }
 
 }

@@ -94,7 +94,7 @@ class TokenController extends Controller
                 'consumer_name' => $request->get("consumer_name"),
                 'contact_number' => $request->get("contact_number"),
                 'email' => $request->get("email"),
-                'model' => $request->get("model"),
+                'model_id' => $request->get("model"),
                 'query' => $request->get("query"),
                 'type' => $request->get("type"),
             ]);
