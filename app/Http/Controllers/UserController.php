@@ -336,6 +336,14 @@ class UserController extends Controller
                     ? round($totalLeads / $totalResponses, 2)
                     : 0;
 
+                $newUsers = $user->where('created_at', '>', Carbon::now()->subDays(7))->count();
+                $increasePercentage = $newUsers > 0 ? round(($newUsers / $user->count()) * 100, 2) : 0;
+
+                $newUserToday = $user->whereDate('created_at', Carbon::today())->count();
+
+                $topModel = $responsePerModel->sortByDesc('total_responses')->first();
+
+                $recentLeadsCount = Lead::where('created_at', '>', Carbon::now()->subDays(2))->count();
 
                 $result[] = [
                     "user_id" => $user->id,
@@ -348,14 +356,21 @@ class UserController extends Controller
                     "leads_per_model" => $leadsPerModel,
                     "conversions_per_model" => $conversionsPerModel,
                     "responsesPerSource" => $responsesPerSource,
-                    "responses" => $responsePerModel
+                    "responses" => $responsePerModel,
+
                 ];
             }
 
             return response()->json([
                 "message" => "Tracking data loaded successfully",
                 "status" => true,
-                "data" => $result
+                "data" => $result,
+                "meta" => [
+                    "new_users_percentage" => $increasePercentage,
+                    "newUserToday" => $newUserToday,
+                    "topModel" => $topModel["model"],
+                    "recentLeadsCount" => $recentLeadsCount
+                ]
             ], 200);
 
         } catch (\Exception $e) {
