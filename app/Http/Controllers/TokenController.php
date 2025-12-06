@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DynamicExport;
 use App\Mail\NotifyUser;
 use App\Models\Token;
 use App\Models\TokenResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Mailables\Address;
+use Maatwebsite\Excel\Facades\Excel;
 use Mail;
 
 class TokenController extends Controller
@@ -60,7 +62,7 @@ class TokenController extends Controller
 
 
 
-            return response()->json(["tokenResponse" => $data["data"], "meta"=> $data["meta"], "message" => "Token Response Found Successfully"], 200);
+            return response()->json(["tokenResponse" => $data["data"], "meta" => $data["meta"], "message" => "Token Response Found Successfully"], 200);
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage()], 500);
         }
@@ -151,4 +153,38 @@ class TokenController extends Controller
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
+
+    public function export(Request $request, string $token)
+    {
+        try {
+            $token = Token::where("token", $token)->first();
+            if (!$token) {
+                return response()->json(["message" => "Invalid Token"], 401);
+            }
+
+            $data = TokenResponse::query()
+                ->where('token_id', $token->id)
+                ->with('leads')
+                ->orderBy("created_at", "desc")
+                ->get()->map(function ($item) {
+                    $item->isCreated = (bool) $item->leads;
+                    return $item;
+                });
+
+            return Excel::download(new DynamicExport($data), 'export.xlsx');
+        } catch (\Exception $e) {
+            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+        }
+    }
+
+    // public function download(array $data)
+    // {
+    //     try {
+    //         // return Excel::download(new DynamicExport($data), 'my-data.xlsx');
+    //         Excel::store(new DynamicExport($data), 'exports/my-data.xlsx', 'public');
+    //         return response()->json(["message" => "File Downloaded Successfully", "url" => url('storage/exports/my-data.xlsx'), "status" => true], 200);
+    //     } catch (\Exception $e) {
+    //         return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+    //     }
+    // }
 }

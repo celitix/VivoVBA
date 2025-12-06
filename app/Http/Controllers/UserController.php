@@ -313,7 +313,7 @@ class UserController extends Controller
                     ->values();
 
                 $responsesPerSource = $responses
-                    ->groupBy('query')
+                    ->groupBy('query')  //here source is saved in query
                     ->map(fn($r) => $r->count())
                     ->map(fn($count, $source) => [
                         'source' => $source,
