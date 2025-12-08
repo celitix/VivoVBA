@@ -381,6 +381,33 @@ class UserController extends Controller
         }
     }
 
+    public function update(Request $request)
+    {
+        try {
+
+            $request->validate([
+                "id" => "required|exists:users,id",
+                'name' => 'required',
+                'email' => 'required|email|unique:users,email ,' . $request->id,
+                'mobile' => 'required|unique:users,mobile ,' . $request->id,
+                'password' => 'required|min:8',
+            ]);
+
+            $user = User::find($request->id);
+
+            $user->update($request->all());
+
+            return response()->json([
+                "message" => "User updated successfully",
+                "status" => true,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
 
     private function sendOtpToMbno($data)
     {

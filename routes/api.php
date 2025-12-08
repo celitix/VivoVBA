@@ -33,6 +33,9 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::get("/model/deleted", [ModelController::class, 'deletedModel']);
     Route::post("/model/restore/{id}", [ModelController::class, 'restore']);
     Route::delete("/model/deleted/{id}", [ModelController::class, 'hardDelete']);
+
+
+    Route::post("/update", [UserController::class, 'update']);
 });
 
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
