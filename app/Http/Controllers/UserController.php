@@ -341,7 +341,11 @@ class UserController extends Controller
 
                 $newUserToday = $user->whereDate('created_at', Carbon::today())->count();
 
-                $topModel = $responsePerModel->sortByDesc('total_responses')->first();
+                $topModel = TokenResponse::select('model_id', DB::raw('COUNT(*) as total'))
+                    ->groupBy('model_id')
+                    ->orderByDesc('total')
+                    ->with('model')
+                    ->first();
 
                 $recentLeadsCount = Lead::where('created_at', '>', Carbon::now()->subDays(2))->count();
 
@@ -368,7 +372,7 @@ class UserController extends Controller
                 "meta" => [
                     "new_users_percentage" => $increasePercentage,
                     "newUserToday" => $newUserToday,
-                    "topModel" => $topModel["model"],
+                    "topModel" => $topModel->model->model,
                     "recentLeadsCount" => $recentLeadsCount
                 ]
             ], 200);
