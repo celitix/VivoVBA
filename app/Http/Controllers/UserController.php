@@ -388,14 +388,41 @@ class UserController extends Controller
             $request->validate([
                 "id" => "required|exists:users,id",
                 'name' => 'required',
-                'email' => 'required|email|unique:users,email ,' . $request->id,
-                'mobile' => 'required|unique:users,mobile ,' . $request->id,
-                'password' => 'required|min:8',
+                'email' => 'required|email|unique:users,email,' . $request->get('id'),
+                'mobile' => 'required|unique:users,mobile,' . $request->get('id'),
+                // 'password' => 'required|min:8',
             ]);
 
             $user = User::find($request->id);
 
             $user->update($request->all());
+
+            return response()->json([
+                "message" => "User updated successfully",
+                "status" => true,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
+
+    public function password(Request $request)
+    {
+        try {
+
+            $request->validate([
+                "id" => "required|exists:users,id",
+                'password' => 'required|min:8',
+            ]);
+
+            $user = User::find($request->get('id'));
+
+            $user->update([
+                'password' => $request->get('password')
+            ]);
 
             return response()->json([
                 "message" => "User updated successfully",

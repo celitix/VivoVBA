@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
 
 
     Route::post("/update", [UserController::class, 'update']);
+    Route::post("/password", [UserController::class, 'password']);
 });
 
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
