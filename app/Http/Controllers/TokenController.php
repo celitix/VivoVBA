@@ -155,12 +155,18 @@ class TokenController extends Controller
         }
     }
 
-    public function export(Request $request, string $token)
+    public function export(Request $request, string $token = null)
     {
         try {
+            $role = auth()->user()->role;
             $token = Token::where("token", $token)->first();
+            if ($role == "user") {
+                $token = Token::where("user_id", auth()->user()->id)->first();
+            } elseif ($role == "admin" && !$token) {
+                return response()->json(["message" => "Token is Required"], 400);
+            }
             if (!$token) {
-                return response()->json(["message" => "Invalid Token"], 401);
+                return response()->json(["message" => "Invalid Token"], 400);
             }
 
             $data = TokenResponse::query()
