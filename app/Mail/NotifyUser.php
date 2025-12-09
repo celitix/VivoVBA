@@ -16,13 +16,18 @@ class NotifyUser extends Mailable
 
     public $data;
     public $name;
+    public $model;
+
+    public $type;
     /**
      * Create a new message instance.
      */
-    public function __construct($data, $name)
+    public function __construct($data, $name, $model, $type)
     {
         $this->data = $data;
         $this->name = $name;
+        $this->model = $model;
+        $this->type = $type;
     }
 
     /**
@@ -48,7 +53,9 @@ class NotifyUser extends Mailable
             view: 'notifyUser',
             with: [
                 'data' => $this->data,
-                'name' => $this->name
+                'name' => $this->name,
+                'model' => $this->model,
+                'type' => $this->type
             ]
         );
     }

@@ -65,15 +65,15 @@
             <h2>New Query Submitted</h2>
         </div>
 
-    <div class="content">
-        <p><span class="label">Token:</span> {{ $name }}</p>
-        <p><span class="label">Consumer Name:</span> {{ $data["consumer_name"] }}</p>
-        <p><span class="label">Contact Number:</span> {{ $data["contact_number"] }}</p>
-        <p><span class="label">Email:</span> {{ $data["email"] }}</p>
-        <p><span class="label">Model:</span> {{ $data["model"] }}</p>
-        <p><span class="label">Query:</span> {{ $data["query"] }}</p>
-        <p><span class="label">Type:</span> {{ $data["type"] }}</p>
-    </div>
+        <div class="content">
+            <p><span class="label">VBA:</span> {{ $name }}</p>
+            <p><span class="label">Consumer Name:</span> {{ $data["consumer_name"] }}</p>
+            <p><span class="label">Contact Number:</span> {{ $data["contact_number"] }}</p>
+            <p><span class="label">Email:</span> {{ $data["email"] }}</p>
+            <p><span class="label">Model:</span> {{ $model }}</p>
+            <p><span class="label">source:</span> {{ $data["query"] }}</p>
+            <p><span class="label">Type:</span> {{ $type }}</p>
+        </div>
 
         <div class="footer">
             <p>This message was generated automatically by your website.</p>

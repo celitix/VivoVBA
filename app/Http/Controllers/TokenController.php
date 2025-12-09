@@ -97,7 +97,7 @@ class TokenController extends Controller
                 'email' => $request->get("email"),
                 'model_id' => $request->get("model"),
                 'query' => $request->get("query"),
-                'type' => $request->get("type"),
+                'type' => $request->get("model") ? "MODEL ENQUIRY" : "GENERAL ENQUIRY",
             ]);
 
             $res->load([
@@ -107,9 +107,11 @@ class TokenController extends Controller
 
             $email = $res->token->user->email;
             $name = $res->token->user->name;
+            $model = $res->model->model;
+            $type = $res->type;
 
 
-            $this->sendEmail($request->all(), $name, $email);
+            $this->sendEmail($request->all(), $name, $email , $model, $type);
 
             return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
@@ -140,15 +142,15 @@ class TokenController extends Controller
         //
     }
 
-    public function sendEmail(array $data, string $name, string $email)
+    public function sendEmail(array $data, string $name, string $email, string $model, string $type)
     {
         try {
             $adminUser = User::where("role", "admin")->get();
 
             foreach ($adminUser as $user) {
-                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name));
+                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name , $model,$type));
             }
-            Mail::to(new Address($email))->queue(new NotifyUser($data, $name));
+            Mail::to(new Address($email))->queue(new NotifyUser($data, $name , $model,$type));
 
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
