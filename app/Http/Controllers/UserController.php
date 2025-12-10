@@ -456,29 +456,47 @@ class UserController extends Controller
             $fromDate = request()->query("fromDate");
             $toDate = request()->query("toDate");
             $vbaId = request()->query("vbaId");
-            $data = User::where("role", "user")
-                ->where(
-                    function ($query) use ($fromDate, $toDate, $vbaId) {
-                        if ($fromDate && $toDate) {
-                            $query->whereBetween('created_at', [$fromDate, $toDate]);
-                        }
-                    }
-                )
-                ->where(function ($query) use ($vbaId) {
-                    if ($vbaId) {
-                        $query->where('id', $vbaId);
-                    }
+
+            $from = $fromDate ? Carbon::parse($fromDate)->startOfDay() : null;
+            $to = $toDate ? Carbon::parse($toDate)->endOfDay() : null;
+
+            $data = TokenResponse::with(["token.user", "lead", "model"])
+                ->when($from && $to, function ($query) use ($from, $to) {
+                    $query->whereBetween('created_at', [$from, $to]);
                 })
-                ->with([
-                    'token.responses.leads',
-                    'token.responses.model'
-                ])->paginate(10);
+                ->when($vbaId, function ($query) use ($vbaId) {
+                    $query->whereHas('token', function ($q) use ($vbaId) {
+                        $q->where('id', $vbaId);
+                    });
+                })
+                ->paginate(10)
+                ->through(function ($item) {
+                    $item->isCreated = (bool) $item->lead;
+                    return $item;
+                });
+
+            $data = TokenResponse::with(["token.user", "lead", "model"])->where(function ($query) use ($fromDate, $toDate) {
+                if ($fromDate && $toDate) {
+                    $fromDate = Carbon::parse($fromDate)->startOfDay();
+                    $toDate = Carbon::parse($toDate)->endOfDay();
+                    $query->whereBetween('created_at', [$fromDate, $toDate]);
+                }
+            })->paginate(10)
+                ->through(function ($item) {
+                    $item->isCreated = (bool) $item->lead;
+                    return $item;
+                });
+
+            // $responses = $data->tokenResponses();
 
 
             return response()->json([
                 "message" => "User data loaded successfully",
                 "status" => true,
                 "data" => $data->items(),
+                "fromDate" => $fromDate,
+                "toDate" => $toDate,
+                // "responses" => $responses,
                 'meta' => [
                     'current_page' => $data->currentPage(),
                     'last_page' => $data->lastPage(),
