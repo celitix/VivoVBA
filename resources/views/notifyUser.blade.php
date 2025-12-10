@@ -70,7 +70,7 @@
             <p><span class="label">Consumer Name:</span> {{ $data["consumer_name"] }}</p>
             <p><span class="label">Contact Number:</span> {{ $data["contact_number"] }}</p>
             <p><span class="label">Email:</span> {{ $data["email"] }}</p>
-            <p><span class="label">Model:</span> {{ $model }}</p>
+            <!-- <p><span class="label">Model:</span> {{ $model }}</p> -->
             <p><span class="label">Source:</span> {{ $data["query"] }}</p>
             <p><span class="label">Type:</span> {{ $type }}</p>
             @if ($data["message"])
