@@ -353,7 +353,7 @@ class UserController extends Controller
 
                 $totalResponse;
                 if ($authUser->role == "admin") {
-                    $totalResponse = TokenResponse::where('user_id', $user->id)->count();
+                    $totalResponse = TokenResponse::all()->count();
                 }
 
 
@@ -383,7 +383,7 @@ class UserController extends Controller
                     "newUserToday" => $newUserToday,
                     "topModel" => $topModel->model->model,
                     "recentLeadsCount" => $recentLeadsCount,
-                    "totalResponse" => $totalResponse
+                    "totalResponse" => $totalResponse ?? null
                 ]
             ], 200);
 
