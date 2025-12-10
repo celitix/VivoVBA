@@ -498,6 +498,23 @@ class UserController extends Controller
         }
     }
 
+    public function allUser()
+    {
+        try {
+            $user = User::where("user", "role")->select("id", "name")->get();
+            return response()->json([
+                "message" => "User data loaded successfully",
+                "status" => true,
+                "data" => $user
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
+
     // public function exportData(Request $request)
     // {
     //     try {
