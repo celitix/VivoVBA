@@ -469,6 +469,7 @@ class UserController extends Controller
                         $q->where('user_id', $vbaId);
                     });
                 })
+                ->orderBy("created_at", "desc")
                 ->paginate(10)
                 ->through(function ($item) {
                     $item->isCreated = (bool) $item->leads;
