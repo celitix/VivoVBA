@@ -475,17 +475,17 @@ class UserController extends Controller
                     return $item;
                 });
 
-            $data = TokenResponse::with(["token.user", "lead", "model"])->where(function ($query) use ($fromDate, $toDate) {
-                if ($fromDate && $toDate) {
-                    $fromDate = Carbon::parse($fromDate)->startOfDay();
-                    $toDate = Carbon::parse($toDate)->endOfDay();
-                    $query->whereBetween('created_at', [$fromDate, $toDate]);
-                }
-            })->paginate(10)
-                ->through(function ($item) {
-                    $item->isCreated = (bool) $item->lead;
-                    return $item;
-                });
+            // $data = TokenResponse::with(["token.user", "lead", "model"])->where(function ($query) use ($fromDate, $toDate) {
+            //     if ($fromDate && $toDate) {
+            //         $fromDate = Carbon::parse($fromDate)->startOfDay();
+            //         $toDate = Carbon::parse($toDate)->endOfDay();
+            //         $query->whereBetween('created_at', [$fromDate, $toDate]);
+            //     }
+            // })->paginate(10)
+            //     ->through(function ($item) {
+            //         $item->isCreated = (bool) $item->lead;
+            //         return $item;
+            //     });
 
             // $responses = $data->tokenResponses();
 
@@ -519,7 +519,7 @@ class UserController extends Controller
     public function allUser()
     {
         try {
-            $user = User::where("user", "role")->select("id", "name")->get();
+            $user = User::where("role", "user")->select("id", "name")->get();
             return response()->json([
                 "message" => "User data loaded successfully",
                 "status" => true,

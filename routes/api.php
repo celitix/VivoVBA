@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
     Route::post("/update", [UserController::class, 'update']);
     Route::post("/password", [UserController::class, 'password']);
     Route::get('/allUserData', [UserController::class, 'allUserData']);
-    Route::get('/allUser', [UserController::class, 'allUserData']);
+    Route::get('/allUser', [UserController::class, 'allUser']);
     // Route::get('/export', [UserController::class, 'exportData']);
 });
 
