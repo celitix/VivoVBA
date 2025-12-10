@@ -460,18 +460,18 @@ class UserController extends Controller
             $from = $fromDate ? Carbon::parse($fromDate)->startOfDay() : null;
             $to = $toDate ? Carbon::parse($toDate)->endOfDay() : null;
 
-            $data = TokenResponse::with(["token.user", "lead", "model"])
+            $data = TokenResponse::with(["token.user", "leads", "model"])
                 ->when($from && $to, function ($query) use ($from, $to) {
                     $query->whereBetween('created_at', [$from, $to]);
                 })
                 ->when($vbaId, function ($query) use ($vbaId) {
                     $query->whereHas('token', function ($q) use ($vbaId) {
-                        $q->where('id', $vbaId);
+                        $q->where('user_id', $vbaId);
                     });
                 })
                 ->paginate(10)
                 ->through(function ($item) {
-                    $item->isCreated = (bool) $item->lead;
+                    $item->isCreated = (bool) $item->leads;
                     return $item;
                 });
 
