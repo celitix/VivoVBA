@@ -453,16 +453,42 @@ class UserController extends Controller
     public function allUserData(Request $request)
     {
         try {
-            $data = User::where("role", "user")->with([
-                'token.responses.leads',
-                'token.responses.model'
-            ])->get();
+            $fromDate = request()->query("fromDate");
+            $toDate = request()->query("toDate");
+            $vbaId = request()->query("vbaId");
+            $data = User::where("role", "user")
+                ->where(
+                    function ($query) use ($fromDate, $toDate, $vbaId) {
+                        if ($fromDate && $toDate) {
+                            $query->whereBetween('created_at', [$fromDate, $toDate]);
+                        }
+                    }
+                )
+                ->where(function ($query) use ($vbaId) {
+                    if ($vbaId) {
+                        $query->where('id', $vbaId);
+                    }
+                })
+                ->with([
+                    'token.responses.leads',
+                    'token.responses.model'
+                ])->paginate(10);
 
 
             return response()->json([
                 "message" => "User data loaded successfully",
                 "status" => true,
-                "data" => $data
+                "data" => $data->items(),
+                'meta' => [
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'per_page' => $data->perPage(),
+                    'total' => $data->total(),
+                    'from' => $data->firstItem(),
+                    'to' => $data->lastItem(),
+                    'next_page_url' => $data->nextPageUrl(),
+                    'prev_page_url' => $data->previousPageUrl(),
+                ]
             ], 200);
         } catch (\Exception $e) {
             return response()->json([

@@ -35,6 +35,12 @@ class LeadController extends Controller
             if ($request->get("is_converted") && !$request->get("imei")) {
                 return response()->json(["message" => "IMEI is required", "status" => false], 500);
             }
+
+
+            if ($request->get("imei") && strlen($request->get("imei")) !== 15) {
+                return response()->json(["message" => "IMEI is not valid", "status" => false], 401);
+            }
+
             $data = [
                 "token_responses_id" => $request->get("token_id"),
                 "is_converted" => $request->get("is_converted"),
