@@ -37,6 +37,7 @@ Route::middleware(['auth:sanctum', 'abilities:admin'])->group(function () {
 
     Route::post("/update", [UserController::class, 'update']);
     Route::post("/password", [UserController::class, 'password']);
+    Route::get('/export', [UserController::class, 'exportData']);
 });
 
 Route::middleware(['auth:sanctum', 'abilities:user'])->group(function () {
@@ -48,6 +49,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get("/tracking", [UserController::class, 'report']);
     Route::get("/lead/{id}", [LeadController::class, 'get']);
-    Route::get('/export/{token?}', [App\Http\Controllers\TokenController::class, 'export']);
+    // Route::get('/export/{token?}', [App\Http\Controllers\TokenController::class, 'export']);
 
 });

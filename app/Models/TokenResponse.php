@@ -38,4 +38,9 @@ class TokenResponse extends Model
         return $this->belongsTo(\App\Models\MobileModel::class, 'model_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
+
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DynamicExport;
 use App\Models\Lead;
 use App\Models\MobileModel;
 use App\Models\Otp;
@@ -12,6 +13,7 @@ use Carbon\Carbon;
 use DB;
 use Http;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -349,6 +351,13 @@ class UserController extends Controller
 
                 $recentLeadsCount = Lead::where('created_at', '>', Carbon::now()->subDays(2))->count();
 
+                $totalResponse;
+                if ($authUser->role == "admin") {
+                    $totalResponse = TokenResponse::where('user_id', $user->id)->count();
+                }
+
+
+
                 $result[] = [
                     "user_id" => $user->id,
                     "user_name" => $user->name,
@@ -373,7 +382,8 @@ class UserController extends Controller
                     "new_users_percentage" => $increasePercentage,
                     "newUserToday" => $newUserToday,
                     "topModel" => $topModel->model->model,
-                    "recentLeadsCount" => $recentLeadsCount
+                    "recentLeadsCount" => $recentLeadsCount,
+                    "totalResponse" => $totalResponse
                 ]
             ], 200);
 
@@ -432,6 +442,46 @@ class UserController extends Controller
                 "message" => "User updated successfully",
                 "status" => true,
             ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
+
+    public function allUserData(Request $request)
+    {
+        try {
+            $data = TokenResponse::with("lead, token, model,user");
+
+            return response()->json([
+                "message" => "User data loaded successfully",
+                "status" => true,
+                "data" => $data
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                "message" => $e->getMessage(),
+                "status" => false
+            ], 500);
+        }
+    }
+
+    public function exportData(Request $request)
+    {
+        try {
+            $data = TokenResponse::query()
+                ->with('leads')
+                ->with("token")
+                ->with("user")
+                ->orderBy("created_at", "desc")
+                ->get()->map(function ($item) {
+                    $item->isCreated = (bool) $item->leads;
+                    return $item;
+                });
+
+            return Excel::download(new DynamicExport($data), 'export.xlsx');
         } catch (\Exception $e) {
             return response()->json([
                 "message" => $e->getMessage(),

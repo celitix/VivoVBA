@@ -21,7 +21,7 @@ class DynamicExport implements FromArray
 
         $excelData[] = [
             // 'ID',
-            'Token',
+            'VBA',
             'Consumer Name',
             'Contact Number',
             'Email',
@@ -38,7 +38,7 @@ class DynamicExport implements FromArray
         foreach ($this->data as $item) {
             $excelData[] = [
                 // $item->id,
-                $item->token->token,
+                $item->token->user->name,
                 $item->consumer_name,
                 $item->contact_number,
                 $item->email,

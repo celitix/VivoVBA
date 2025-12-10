@@ -111,7 +111,7 @@ class TokenController extends Controller
             $type = $res->type;
 
 
-            $this->sendEmail($request->all(), $name, $email , $model, $type);
+            $this->sendEmail($request->all(), $name, $email, $model, $type);
 
             return response()->json(["message" => "Token Response Created Successfully", "status" => true], 200);
         } catch (\Exception $e) {
@@ -148,25 +148,22 @@ class TokenController extends Controller
             $adminUser = User::where("role", "admin")->get();
 
             foreach ($adminUser as $user) {
-                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name , $model,$type));
+                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name, $model, $type));
             }
-            Mail::to(new Address($email))->queue(new NotifyUser($data, $name , $model,$type));
+            Mail::to(new Address($email))->queue(new NotifyUser($data, $name, $model, $type));
 
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
-    public function export(Request $request, string $token = null)
+    public function export(Request $request, string $token)
     {
         try {
-            $role = auth()->user()->role;
+
             $token = Token::where("token", $token)->first();
-            if ($role == "user") {
-                $token = Token::where("user_id", auth()->user()->id)->first();
-            } elseif ($role == "admin" && !$token) {
-                return response()->json(["message" => "Token is Required"], 400);
-            }
+            $token = Token::where("user_id", auth()->user()->id)->first();
+
             if (!$token) {
                 return response()->json(["message" => "Invalid Token"], 400);
             }
