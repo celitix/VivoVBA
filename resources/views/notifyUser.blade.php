@@ -71,8 +71,14 @@
             <p><span class="label">Contact Number:</span> {{ $data["contact_number"] }}</p>
             <p><span class="label">Email:</span> {{ $data["email"] }}</p>
             <p><span class="label">Model:</span> {{ $model }}</p>
-            <p><span class="label">source:</span> {{ $data["query"] }}</p>
+            <p><span class="label">Source:</span> {{ $data["query"] }}</p>
             <p><span class="label">Type:</span> {{ $type }}</p>
+            @if ($data["message"])
+                <p><span class="label">Query:</span> {{ $data["message"] }}</p>
+            @endif
+            @if ($data["model"])
+                <p><span class="label">Model:</span> {{ $model }}</p>
+            @endif
         </div>
 
         <div class="footer">

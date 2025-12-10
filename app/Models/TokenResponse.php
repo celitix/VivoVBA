@@ -15,7 +15,8 @@ class TokenResponse extends Model
         'model_id',
         'query',
         'type',
-        "converted_at"
+        "convered_at",
+        "message"
     ];
 
     public function leads()

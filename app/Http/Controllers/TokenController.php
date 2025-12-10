@@ -95,9 +95,10 @@ class TokenController extends Controller
                 'consumer_name' => $request->get("consumer_name"),
                 'contact_number' => $request->get("contact_number"),
                 'email' => $request->get("email"),
-                'model_id' => $request->get("model"),
-                'query' => $request->get("query"),
-                'type' => $request->get("model") ? "MODEL ENQUIRY" : "GENERAL ENQUIRY",
+                'model_id' => $request->get("model") ?? null,
+                'query' => $request->get("query"), // this key now used for source
+                'type' => $request->get("type"),
+                'message' => $request->get("message"),
             ]);
 
             $res->load([
@@ -107,7 +108,7 @@ class TokenController extends Controller
 
             $email = $res->token->user->email;
             $name = $res->token->user->name;
-            $model = $res->model->model;
+            $model = $res?->model?->model ?? "";
             $type = $res->type;
 
 
@@ -148,41 +149,52 @@ class TokenController extends Controller
             $adminUser = User::where("role", "admin")->get();
 
             foreach ($adminUser as $user) {
-                Mail::to(new Address($user->email))->queue(new NotifyUser($data, $name, $model, $type));
+                Mail::to(new Address($user->email))->send(new NotifyUser($data, $name, $model, $type));
             }
-            Mail::to(new Address($email))->queue(new NotifyUser($data, $name, $model, $type));
+            Mail::to(new Address($email))->send(new NotifyUser($data, $name, $model, $type));
 
         } catch (\Exception $e) {
             return response()->json(["message" => $e->getMessage(), "status" => false], 500);
         }
     }
 
-    public function export(Request $request, string $token)
+    public function export(Request $request)
     {
         try {
+            $query = TokenResponse::query()
+                ->with(['leads', 'token'])
+                ->orderBy('created_at', 'desc');
 
-            $token = Token::where("token", $token)->first();
-            $token = Token::where("user_id", auth()->user()->id)->first();
+            $role = auth()->user()->role;
 
-            if (!$token) {
-                return response()->json(["message" => "Invalid Token"], 400);
+            if ($role === 'user') {
+                $token = Token::where('user_id', auth()->id())->first();
+
+                if (!$token) {
+                    return response()->json([
+                        'message' => 'No token found for user.',
+                        'status' => false
+                    ], 404);
+                }
+
+                $query->where('token_id', $token->id);
             }
 
-            $data = TokenResponse::query()
-                ->where('token_id', $token->id)
-                ->with('leads')
-                ->with("token")
-                ->orderBy("created_at", "desc")
-                ->get()->map(function ($item) {
-                    $item->isCreated = (bool) $item->leads;
-                    return $item;
-                });
+            $data = $query->get()->map(function ($item) {
+                $item->isCreated = (bool) $item->leads;
+                return $item;
+            });
 
             return Excel::download(new DynamicExport($data), 'export.xlsx');
+
         } catch (\Exception $e) {
-            return response()->json(["message" => $e->getMessage(), "status" => false], 500);
+            return response()->json([
+                'message' => $e->getMessage(),
+                'status' => false
+            ], 500);
         }
     }
+
 
     // public function download(array $data)
     // {

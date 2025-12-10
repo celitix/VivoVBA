@@ -269,7 +269,7 @@ class UserController extends Controller
             $users = User::where("id", $authUser->id)->get();
 
             if ($authUser->role == "admin") {
-                $users = User::with([
+                $users = User::where("role", "user")->with([
                     'token.responses.leads',
                     'token.responses.model'
                 ])->get();
@@ -453,7 +453,11 @@ class UserController extends Controller
     public function allUserData(Request $request)
     {
         try {
-            $data = TokenResponse::with("lead, token, model,user");
+            $data = User::where("role", "user")->with([
+                'token.responses.leads',
+                'token.responses.model'
+            ])->get();
+
 
             return response()->json([
                 "message" => "User data loaded successfully",
@@ -468,27 +472,27 @@ class UserController extends Controller
         }
     }
 
-    public function exportData(Request $request)
-    {
-        try {
-            $data = TokenResponse::query()
-                ->with('leads')
-                ->with("token")
-                ->with("user")
-                ->orderBy("created_at", "desc")
-                ->get()->map(function ($item) {
-                    $item->isCreated = (bool) $item->leads;
-                    return $item;
-                });
+    // public function exportData(Request $request)
+    // {
+    //     try {
+    //         $data = TokenResponse::query()
+    //             ->with('leads')
+    //             ->with("token")
+    //             ->with("user")
+    //             ->orderBy("created_at", "desc")
+    //             ->get()->map(function ($item) {
+    //                 $item->isCreated = (bool) $item->leads;
+    //                 return $item;
+    //             });
 
-            return Excel::download(new DynamicExport($data), 'export.xlsx');
-        } catch (\Exception $e) {
-            return response()->json([
-                "message" => $e->getMessage(),
-                "status" => false
-            ], 500);
-        }
-    }
+    //         return Excel::download(new DynamicExport($data), 'export.xlsx');
+    //     } catch (\Exception $e) {
+    //         return response()->json([
+    //             "message" => $e->getMessage(),
+    //             "status" => false
+    //         ], 500);
+    //     }
+    // }
 
     private function sendOtpToMbno($data)
     {

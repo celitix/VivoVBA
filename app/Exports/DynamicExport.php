@@ -27,6 +27,7 @@ class DynamicExport implements FromArray
             'Email',
             'Model',
             'Source',
+            'Query Type',
             'User Query',
             'Created At',
             // 'Lead ID',
@@ -45,6 +46,7 @@ class DynamicExport implements FromArray
                 $item->model?->model,
                 $item->query,
                 $item->type,
+                $item?->message,
                 $item->created_at,
 
                 // safe relation access
