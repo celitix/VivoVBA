@@ -13,7 +13,6 @@ use Carbon\Carbon;
 use DB;
 use Http;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
@@ -574,8 +573,14 @@ class UserController extends Controller
 
     private function generateTrackingToken(): string
     {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $length = 5;
+
         do {
-            $token = Str::random(5);
+            $token = '';
+            for ($i = 0; $i < $length; $i++) {
+                $token .= $characters[random_int(0, strlen($characters) - 1)];
+            }
         } while (Token::where('token', $token)->exists());
 
         return $token;
